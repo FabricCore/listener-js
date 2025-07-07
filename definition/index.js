@@ -1,3 +1,3 @@
-module.exports = {};
+module.require("./client");
 
-Object.assign(module.exports, module.require("./client"));
+module.exports = module.require("./build");
