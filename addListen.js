@@ -13,7 +13,7 @@ function buildListenerOrder(key) {
         .map(({ callback }) => callback);
 }
 
-function addEventListener(eventType, callback, priority = 10000) {
+function addEventListener(eventType, callback, { priority = 10000, id }) {
     let def =
         typeof eventType == "string"
             ? getByName(eventType)
@@ -26,6 +26,7 @@ function addEventListener(eventType, callback, priority = 10000) {
     module.globals ??= {};
     module.globals.listener ??= {};
     module.globals.listener.events ??= {};
+    module.globals.listener.idToEvent ??= {};
 
     if (module.globals.listener.events[def.key] == undefined) {
         module.globals.listener.events[def.key] = {
@@ -40,22 +41,19 @@ function addEventListener(eventType, callback, priority = 10000) {
             let event = module.globals.listener.events[def.key];
             // step 1: wrap all args
             for (let i = 0; i < args.length; i++) {
-                args[i] = Runtime.wrap(args[i]);
+                args[i] = Runtime.autoWrap(args[i]);
             }
 
             // step 2: call all listeners
             let listeners = event.orderedListeners;
             for (let i = 0; i < listeners.length; i++) {
-                res = event.def.tail(listeners[i].apply(null, args));
-                let composed = event.def.composer.apply(
-                    null,
-                    [res].concat(args),
-                );
+                res = event.def.tail(listeners[i].apply(null, args), args);
+                let [pass, nextArgs] = event.def.composer(res, args);
 
-                if (composed[0]) {
-                    args = composed.slice(1);
+                if (pass) {
+                    args = nextArgs;
                 } else {
-                    res = composed[1];
+                    res = nextArgs;
                     break;
                 }
             }
@@ -68,16 +66,15 @@ function addEventListener(eventType, callback, priority = 10000) {
         def.channel.register(interfaceWrapped);
     }
 
-    let id;
-
-    do {
-        id = Math.floor(Math.random() * 4294967295)
-            .toString(16)
-            .padStart(8, 0);
-    } while (
-        module.globals.listener.events[def.key].registeredListeners[id] !=
-        undefined
-    );
+    if (id == undefined)
+        do {
+            id = Math.floor(Math.random() * 4294967295)
+                .toString(16)
+                .padStart(8, 0);
+        } while (
+            module.globals.listener.events[def.key].registeredListeners[id] !=
+            undefined
+        );
 
     module.globals.listener.events[def.key].registeredListeners[id] = {
         callback,
@@ -85,6 +82,7 @@ function addEventListener(eventType, callback, priority = 10000) {
     };
 
     buildListenerOrder(def.key);
+    module.globals.listener.idToEvent[id] = def.key;
 
     return {
         eventKey: def.key,

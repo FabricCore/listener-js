@@ -1,23 +1,33 @@
 let events = {};
 let channels = {};
 
+let eventObjects = {};
+
+let { addEventListener } = module.require("../addListen", "lazy");
+
 module.exports = {};
 
-// composer: (tailOutput, currentInputs...) =>
+// composer: (tailOutput, [currentInputs...]) =>
 //     [pass = false, returnValue]
-//     [pass = true, nextInputs...]
+//     [pass = true, [nextInputs...]]
 //
-// tail: (currentOutput, currentInputs...) => correctedOutput
+// tail: (currentOutput, [currentInputs...]) => correctedOutput
 module.exports.addEvent = (
     key,
     channel,
     interface,
     method,
     tail = (v) => v,
-    composer = function (_, ...inputs) {
-        return [true].concat(inputs);
+    composer = function (_, inputs) {
+        return [true, inputs];
     },
 ) => {
+    eventObjects[key] = {
+        register: (callback, { priority = 10000, id }) => {
+            return addEventListener(callback, { priority, id });
+        },
+    };
+
     key = key.toLowerCase();
     events[key] = {
         key,
@@ -43,4 +53,8 @@ module.exports.getByName = (name) => {
 
 module.exports.getByChannel = (channel) => {
     return channels[channel];
+};
+
+module.exports.getEventObjects = () => {
+    return eventObjects;
 };
