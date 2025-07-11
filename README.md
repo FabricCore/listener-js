@@ -17,6 +17,8 @@ listener.cancel(); // cancels the listener
 
 #### Missing events
 
+As taken from [FabricMC event index](https://wiki.fabricmc.net/tutorial:event_index), which may be outdated.
+
 | Event                                | Reason                          |
 | ------------------------------------ | ------------------------------- |
 | ClientPickBlockApplyCallback         | Could not find on Fabric GitHub |
