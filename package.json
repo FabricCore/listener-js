@@ -1,6 +1,6 @@
 {
   "name": "listener",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Event listeners for JSCore.",
   "keywords": [],
   "license": "LGPL-3.0-or-later",
@@ -14,6 +14,6 @@
     "url": "https://github.com/fabriccore/listener-js"
   },
   "dependencies": {
-    "rinode": "0.1.0"
+    "yarn-extra": "0.1.0"
   }
 }

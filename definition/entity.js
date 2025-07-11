@@ -1,7 +1,7 @@
 let { EntityElytraEvents, EntitySleepEvents } =
     net.fabricmc.fabric.api.entity.event.v1;
 
-let { ActionResult } = net.minecraft.util;
+let { ActionResult } = Yarn.net.minecraft.util;
 
 addEvent(
     "EntityElytraAllow",
@@ -49,8 +49,8 @@ addEvent(
     EntitySleepEvents.ALLOW_BED,
     EntitySleepEvents.AllowBed,
     "allowBed",
-    (b) => b ?? ActionResult.Pass,
-    (res, args) => (res == ActionResult.Pass ? [true, args] : [false, res]),
+    (b) => b ?? ActionResult.PASS,
+    (res, args) => (res == ActionResult.PASS ? [true, args] : [false, res]),
 );
 
 addEvent(
@@ -58,8 +58,8 @@ addEvent(
     EntitySleepEvents.ALLOW_SLEEP_TIME,
     EntitySleepEvents.AllowSleepTime,
     "allowSleepTime",
-    (b) => b ?? ActionResult.Pass,
-    (res, args) => (res == ActionResult.Pass ? [true, args] : [false, res]),
+    (b) => b ?? ActionResult.PASS,
+    (res, args) => (res == ActionResult.PASS ? [true, args] : [false, res]),
 );
 
 addEvent(
@@ -67,8 +67,8 @@ addEvent(
     EntitySleepEvents.ALLOW_NEARBY_MONSTERS,
     EntitySleepEvents.AllowNearbyMonsters,
     "allowSleepTime",
-    (b) => b ?? ActionResult.Pass,
-    (res, args) => (res == ActionResult.Pass ? [true, args] : [false, res]),
+    (b) => b ?? ActionResult.PASS,
+    (res, args) => (res == ActionResult.PASS ? [true, args] : [false, res]),
 );
 
 addEvent(
