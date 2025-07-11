@@ -17,6 +17,7 @@ listener.cancel(); // cancels the listener
 
 #### Missing events
 
-| Event                        | Reason                          |
-| ---------------------------- | ------------------------------- |
-| ClientPickBlockApplyCallback | Could not find on Fabric GitHub |
+| Event                                | Reason                          |
+| ------------------------------------ | ------------------------------- |
+| ClientPickBlockApplyCallback         | Could not find on Fabric GitHub |
+| ModifyItemAttributeModifiersCallback | Not found                       |
