@@ -1,9 +1,9 @@
-let defs = module.require("./definition");
+let build = module.require("./build");
 
 module.exports = {
     get events() {
-        return defs.getEventObjects();
+        return build.getEventObjects();
     },
 };
-Object.assign(module.exports, defs);
+Object.assign(module.exports, build);
 Object.assign(module.exports, module.require("./addListen"));
