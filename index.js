@@ -1,4 +1,4 @@
-let build = module.require("./build");
+let build = module.require("./defBuilder");
 
 module.exports = {
     get events() {

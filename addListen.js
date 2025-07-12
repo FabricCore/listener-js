@@ -1,6 +1,6 @@
 let { Runtime } = Packages.ws.siri.jscore.runtime;
 
-let { getByName, getByChannel } = module.require("./definition");
+let { getByName, getByChannel } = module.require("./defBuilder");
 
 function buildListenerOrder(key) {
     module.globals.listener.events[key].orderedListeners = Object.values(
@@ -13,7 +13,8 @@ function buildListenerOrder(key) {
         .map(({ callback }) => callback);
 }
 
-function addEventListener(eventType, callback, { priority = 10000, id }) {
+function addEventListener(eventType, callback, { priority, id } = {}) {
+    priority ??= 10000;
     let def =
         typeof eventType == "string"
             ? getByName(eventType)
@@ -96,6 +97,5 @@ function addEventListener(eventType, callback, { priority = 10000, id }) {
     };
 }
 
-module.exports = {
-    addEventListener,
-};
+module.globals.listener ??= {};
+module.globals.listener.addEventListener = addEventListener;

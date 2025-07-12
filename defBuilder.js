@@ -3,8 +3,6 @@ let channels = {};
 
 let eventObjects = {};
 
-let { addEventListener } = module.require("../addListen", "lazy");
-
 module.exports = {};
 
 // composer: (tailOutput, [currentInputs...]) =>
@@ -23,8 +21,11 @@ module.exports.addEvent = (
     },
 ) => {
     eventObjects[key] = {
-        register: (callback, { priority = 10000, id }) => {
-            return addEventListener(callback, { priority, id });
+        register: (callback, { priority, id }) => {
+            return module.globals.listener.addEventListener(callback, {
+                priority: priority ?? 10000,
+                id,
+            });
         },
     };
 
