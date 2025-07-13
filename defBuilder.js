@@ -21,11 +21,12 @@ module.exports.addEvent = (
     },
 ) => {
     eventObjects[key] = {
-        register: (callback, { priority, id }) => {
-            return module.globals.listener.addEventListener(callback, {
-                priority: priority ?? 10000,
-                id,
-            });
+        register: (callback, opts = {}) => {
+            return module.globals.listener.addEventListener(
+                key,
+                callback,
+                opts,
+            );
         },
     };
 
@@ -38,7 +39,7 @@ module.exports.addEvent = (
         tail,
         composer,
     };
-    channels[key] = {
+    channels[channel] = {
         key,
         channel,
         interface,

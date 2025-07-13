@@ -1,1 +1,3 @@
-prelude.eval("let addEventListener = module.globals.listener.addEventListener");
+prelude.eval(
+    "let {addEventListener, removeEventListener} = module.globals.listener",
+);

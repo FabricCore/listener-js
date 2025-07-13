@@ -29,6 +29,10 @@ function addEventListener(eventType, callback, { priority, id } = {}) {
     module.globals.listener.events ??= {};
     module.globals.listener.idToEvent ??= {};
 
+    if (id != undefined && module.globals.listener.idToEvent[id] != undefined) {
+        module.globals.listener.removeEventListener(id);
+    }
+
     if (module.globals.listener.events[def.key] == undefined) {
         module.globals.listener.events[def.key] = {
             registeredListeners: {},
@@ -48,15 +52,25 @@ function addEventListener(eventType, callback, { priority, id } = {}) {
             // step 2: call all listeners
             let listeners = event.orderedListeners;
             for (let i = 0; i < listeners.length; i++) {
-                res = event.def.tail(listeners[i].apply(null, args), args);
-                let [pass, nextArgs] = event.def.composer(res, args);
+                try {
+                    res = event.def.tail(listeners[i].apply(null, args), args);
+                    let [pass, nextArgs] = event.def.composer(res, args);
 
-                if (pass) {
-                    args = nextArgs;
-                } else {
-                    res = nextArgs;
-                    break;
+                    if (pass) {
+                        args = nextArgs;
+                    } else {
+                        res = nextArgs;
+                        break;
+                    }
+                } catch (e) {
+                    console.error(
+                        `An error occured when running a listener in ${event.def.key}. Cause: ${e}`,
+                    );
                 }
+            }
+
+            if (listeners.length == 0) {
+                res = event.def.tail(undefined, args);
             }
 
             // step 3: unwrap stuff?
@@ -89,6 +103,7 @@ function addEventListener(eventType, callback, { priority, id } = {}) {
         eventKey: def.key,
         id,
         cancel: () => {
+            delete module.globals.listener.idToEvent[id];
             delete module.globals.listener.events[def.key].registeredListeners[
                 id
             ];
@@ -99,3 +114,5 @@ function addEventListener(eventType, callback, { priority, id } = {}) {
 
 module.globals.listener ??= {};
 module.globals.listener.addEventListener = addEventListener;
+
+module.exports = { buildListenerOrder };

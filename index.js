@@ -7,3 +7,4 @@ module.exports = {
 };
 Object.assign(module.exports, build);
 Object.assign(module.exports, module.require("./addListen"));
+Object.assign(module.exports, module.require("./removeListen"));
