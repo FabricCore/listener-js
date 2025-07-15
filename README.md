@@ -3,7 +3,7 @@ Events are defined manually in `/definition/`
 ## Usage
 
 ```js
-let { addEventListener } = require("listener");
+let { waitUntil } = require("listener");
 
 let counter = 0;
 
@@ -13,6 +13,10 @@ let listener = addEventListener("clientStartWorldTick", () => {
 });
 
 listener.cancel(); // cancels the listener
+
+waitUntil("clientStartWorldTick", () => {
+  console.log("This will only run once.");
+});
 ```
 
 #### Missing events
@@ -30,4 +34,3 @@ As taken from [FabricMC event index](https://wiki.fabricmc.net/tutorial:event_in
 How to deal with UseItemCallback which returns a TypedActionResult? What should be its default value? What to do with the value returned in TypedActionResult.PASS?
 
 TODO: restructure event definitions to match the structure as on the Fabric repository.
-

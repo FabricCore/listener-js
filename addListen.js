@@ -49,11 +49,14 @@ function addEventListener(eventType, callback, { priority, id } = {}) {
                 args[i] = Runtime.autoWrap(args[i]);
             }
 
+            let successes = 0;
+
             // step 2: call all listeners
             let listeners = event.orderedListeners;
             for (let i = 0; i < listeners.length; i++) {
                 try {
                     res = event.def.tail(listeners[i].apply(null, args), args);
+                    successes++;
                     let [pass, nextArgs] = event.def.composer(res, args);
 
                     if (pass) {
@@ -69,7 +72,7 @@ function addEventListener(eventType, callback, { priority, id } = {}) {
                 }
             }
 
-            if (listeners.length == 0) {
+            if (successes == 0) {
                 res = event.def.tail(undefined, args);
             }
 

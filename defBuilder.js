@@ -28,6 +28,9 @@ module.exports.addEvent = (
                 opts,
             );
         },
+        wait: (callback, opts = {}) => {
+            module.globals.listener.waitUntil(key, callback, opts);
+        },
     };
 
     key = key.toLowerCase();
