@@ -1,10 +1,6 @@
 let events = {};
 let channels = {};
 
-let eventObjects = {};
-
-module.exports = {};
-
 // composer: (tailOutput, [currentInputs...]) =>
 //     [pass = false, returnValue]
 //     [pass = true, [nextInputs...]]
@@ -20,19 +16,6 @@ module.exports.addEvent = (
         return [true, inputs];
     },
 ) => {
-    eventObjects[key] = {
-        register: (callback, opts = {}) => {
-            return module.globals.listener.addEventListener(
-                key,
-                callback,
-                opts,
-            );
-        },
-        wait: (callback, opts = {}) => {
-            module.globals.listener.waitUntil(key, callback, opts);
-        },
-    };
-
     key = key.toLowerCase();
     events[key] = {
         key,
@@ -58,8 +41,4 @@ module.exports.getByName = (name) => {
 
 module.exports.getByChannel = (channel) => {
     return channels[channel];
-};
-
-module.exports.getEventObjects = () => {
-    return eventObjects;
 };
