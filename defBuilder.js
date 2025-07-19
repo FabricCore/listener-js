@@ -1,6 +1,8 @@
 let events = {};
 let channels = {};
 
+module.exports = {};
+
 // composer: (tailOutput, [currentInputs...]) =>
 //     [pass = false, returnValue]
 //     [pass = true, [nextInputs...]]
