@@ -1,8 +1,15 @@
 let { Runtime } = Packages.ws.siri.jscore.runtime;
 
-let { getByName, getByChannel } = module.require("./defBuilder");
+let {
+    getByName,
+    getByChannel,
+    registerCustomCallback,
+    addPrelisten,
+    removePrelisten,
+} = module.require("./defBuilder");
 
 function buildListenerOrder(key) {
+    if (module.globals.listener.events[key] == undefined) return;
     module.globals.listener.events[key].orderedListeners = Object.values(
         module.globals.listener.events[key].registeredListeners,
     )
@@ -13,14 +20,43 @@ function buildListenerOrder(key) {
         .map(({ callback }) => callback);
 }
 
-function addEventListener(eventType, callback, { priority, id } = {}) {
+function addEventListener(
+    eventType,
+    callback,
+    { priority, id, prelisten } = {},
+) {
     priority ??= 10000;
     let def =
         typeof eventType == "string"
             ? getByName(eventType)
             : getByChannel(eventType);
 
+    if (id == undefined)
+        id = Math.floor(Math.random() * 4294967295)
+            .toString(16)
+            .padStart(8, 0);
+
     if (def == undefined) {
+        if (prelisten && typeof eventType == "string") {
+            addPrelisten(eventType, callback, { priority, id });
+            module.globals.listener.idToEvent[id] = eventType;
+
+            return {
+                eventKey: eventType,
+                id,
+                cancel: () => {
+                    let def = getByName(eventType);
+                    if (def == undefined) {
+                        removePrelisten(eventType);
+                    } else {
+                        delete module.globals.listener.idToEvent[id];
+                        delete module.globals.listener.events[def.key]
+                            .registeredListeners[id];
+                        buildListenerOrder(def.key);
+                    }
+                },
+            };
+        }
         throw new Error(`No event definition for ${eventType}`);
     }
 
@@ -29,7 +65,7 @@ function addEventListener(eventType, callback, { priority, id } = {}) {
     module.globals.listener.events ??= {};
     module.globals.listener.idToEvent ??= {};
 
-    if (id != undefined && module.globals.listener.idToEvent[id] != undefined) {
+    if (module.globals.listener.idToEvent[id] != undefined) {
         module.globals.listener.removeEventListener(id);
     }
 
@@ -40,8 +76,7 @@ function addEventListener(eventType, callback, { priority, id } = {}) {
             def,
         };
 
-        let interfaceInternal = {};
-        interfaceInternal[def.method] = function (...args) {
+        function implementer(...args) {
             let res;
             let event = module.globals.listener.events[def.key];
             // step 1: wrap all args
@@ -78,21 +113,18 @@ function addEventListener(eventType, callback, { priority, id } = {}) {
 
             // step 3: unwrap stuff?
             return Runtime.unwrap(res);
-        };
+        }
 
-        let interfaceWrapped = new def.interface(interfaceInternal);
-        def.channel.register(interfaceWrapped);
+        if (def.method == null) {
+            registerCustomCallback(def.key, implementer);
+        } else {
+            let interfaceInternal = {};
+            interfaceInternal[def.method] = implementer;
+
+            let interfaceWrapped = new def.interface(interfaceInternal);
+            def.channel.register(interfaceWrapped);
+        }
     }
-
-    if (id == undefined)
-        do {
-            id = Math.floor(Math.random() * 4294967295)
-                .toString(16)
-                .padStart(8, 0);
-        } while (
-            module.globals.listener.events[def.key].registeredListeners[id] !=
-            undefined
-        );
 
     module.globals.listener.events[def.key].registeredListeners[id] = {
         callback,

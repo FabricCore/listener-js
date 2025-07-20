@@ -16,9 +16,14 @@ function removeEventListener(identifier) {
             if (eventKey == undefined) return;
 
             delete module.globals.listener.idToEvent[identifier];
-            delete module.globals.listener.events[eventKey].registeredListeners[
-                identifier
-            ];
+            let def = getByName(eventKey);
+
+            if (def == undefined) {
+            } else {
+                delete module.globals.listener.events[def.key]
+                    .registeredListeners[identifier];
+            }
+
             buildListenerOrder(eventKey);
             break;
         case "object":
