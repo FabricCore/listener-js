@@ -1,7 +1,8 @@
 let events = {};
 let channels = {};
-let customChannels = {};
 let prelisten = {};
+
+module.globals.customChannels ??= {};
 
 module.exports = {};
 
@@ -66,12 +67,12 @@ Object.assign(module.exports, {
 
     registerCustomCallback: (name, method) => {
         name = name.toLowerCase();
-        customChannels[name] = method;
+        module.globals.customChannels[name] = method;
     },
     dispatchCustomEvent: (name, args) => {
         name = name.toLowerCase();
-        if (customChannels[name]) customChannels[name].apply(null, args);
-        else throw new Error(`no such custom event ${name} `);
+        if (module.globals.customChannels[name])
+            module.globals.customChannels[name].apply(null, args);
     },
 
     addPrelisten: (name, callback, options) => {

@@ -20,10 +20,12 @@ function buildListenerOrder(key) {
         .map(({ callback }) => callback);
 }
 
+let listenersBySource = {};
+
 function addEventListener(
     eventType,
     callback,
-    { priority, id, prelisten } = {},
+    { priority, id, prelisten, source } = {},
 ) {
     priority ??= 10000;
     let def =
@@ -36,9 +38,19 @@ function addEventListener(
             .toString(16)
             .padStart(8, 0);
 
+    if (source) {
+        listenersBySource[source] ??= [];
+        listenersBySource[source].push(id);
+    }
+
+    module.globals ??= {};
+    module.globals.listener ??= {};
+    module.globals.listener.events ??= {};
+    module.globals.listener.idToEvent ??= {};
+
     if (def == undefined) {
         if (prelisten && typeof eventType == "string") {
-            addPrelisten(eventType, callback, { priority, id });
+            addPrelisten(eventType, callback, { priority, id, source });
             module.globals.listener.idToEvent[id] = eventType;
 
             return {
@@ -59,11 +71,6 @@ function addEventListener(
         }
         throw new Error(`No event definition for ${eventType}`);
     }
-
-    module.globals ??= {};
-    module.globals.listener ??= {};
-    module.globals.listener.events ??= {};
-    module.globals.listener.idToEvent ??= {};
 
     if (module.globals.listener.idToEvent[id] != undefined) {
         module.globals.listener.removeEventListener(id);
@@ -150,4 +157,7 @@ function addEventListener(
 module.globals.listener ??= {};
 module.globals.listener.addEventListener = addEventListener;
 
-module.exports = { buildListenerOrder };
+module.exports = {
+    buildListenerOrder,
+    getListenersFromSource: (name) => listenersBySource[name] ?? [],
+};

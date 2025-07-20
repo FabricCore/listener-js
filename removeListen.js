@@ -1,4 +1,4 @@
-let { getByName } = module.require("./defBuilder");
+let { getByName, removePrelisten } = module.require("./defBuilder");
 let { buildListenerOrder } = module.require("./addListen");
 
 function removeEventListener(identifier) {
@@ -18,7 +18,8 @@ function removeEventListener(identifier) {
             delete module.globals.listener.idToEvent[identifier];
             let def = getByName(eventKey);
 
-            if (def == undefined) {
+            if (module.globals.listener.events[def.key] == undefined) {
+                removePrelisten(identifier);
             } else {
                 delete module.globals.listener.events[def.key]
                     .registeredListeners[identifier];
